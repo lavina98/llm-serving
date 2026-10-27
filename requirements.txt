@@ -1,0 +1,13 @@
+# Serving engine (brings its own matching torch). After installing, pin the
+# versions you got: uv pip freeze | grep -E "^(vllm|torch|transformers)=="
+vllm
+
+# Load testing and analysis
+httpx
+numpy
+pandas
+matplotlib
+
+# Naive baseline server (Day 3)
+fastapi
+uvicorn

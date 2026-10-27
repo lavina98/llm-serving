@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Model weights and caches (never commit these)
+models/
+*.safetensors
+*.bin
+*.gguf
+.cache/
+
+# Server logs
+logs/
+
+# Large raw results; commit summaries and charts instead
+results/raw/
+
+.env
+.DS_Store

@@ -1,6 +1,5 @@
-# Serving engine (brings its own matching torch). After installing, pin the
-# versions you got: uv pip freeze | grep -E "^(vllm|torch|transformers)=="
-vllm
+# Serving engine (brings its own matching torch). Verified on driver 617.42.
+vllm==0.32.0  # brings torch==2.13.0+cu130, transformers==5.19.0; needs NVIDIA driver >= 580
 
 # Load testing and analysis
 httpx

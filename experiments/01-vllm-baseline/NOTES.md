@@ -10,13 +10,14 @@ Setup: Qwen2.5-1.5B-Instruct, bf16, `--max-model-len 4096 --gpu-memory-utilizati
 
 | # | Question | My prediction | Measured | Why the difference? |
 |---|---|---|---|---|
-| P1 | GiB of VRAM for model weights | | | |
-| P2 | KV cache bytes per token (from config.json) | | | |
-| P3 | Tokens that fit in the KV cache | | | |
-| P4 | Batch-1 decode tok/s (ceiling ~62) | | | |
-| P5 | TTFT for a short prompt (ms) | | | |
-| P6 | Is the warmup request slower? Why? | | | |
-| P7 | Do stream chunks = output tokens? | | | |
+| P1 | GiB of VRAM for model weights | 2.9 GiB (1.54B params × 2 bytes) | | |
+| P2 | KV cache bytes per token (from config.json) | 28 KiB (2 × 28 layers × 2 KV heads × 128 × 2 bytes) | | |
+| P3 | Tokens that fit in the KV cache | ~1.2 GiB → ~45k tokens → ~11 requests of 4,096 tokens | | |
+| P4 | Batch-1 decode tok/s (ceiling ~62) | ~37 tok/s (60% of ceiling) | | |
+| P5 | TTFT for a short prompt (ms) | 50 ms | | |
+| P6 | Is the warmup request slower? Why? | Yes: KV cache setup and weight loading | | |
+| P7 | Do stream chunks = output tokens? | No: one word can be several tokens | | |
+| P8 | 256 → 1,024 output tokens: does TPOT change? | Goes up | | |
 
 ### Startup log lines worth keeping
 

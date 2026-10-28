@@ -10,6 +10,10 @@ MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
 # if this fraction of total VRAM is more than what is free.
 GPU_UTIL="${GPU_UTIL:-0.75}"
 
+# FlashInfer's sampler compiles itself with nvcc on first use, but WSL here has
+# only the driver, no CUDA toolkit. Use PyTorch's sampler instead.
+export VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"
+
 mkdir -p logs
 LOG="logs/vllm_$(date +%Y%m%d_%H%M%S).log"
 echo "Logging to $LOG"

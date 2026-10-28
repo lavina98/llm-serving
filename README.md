@@ -45,9 +45,10 @@ docs/          architecture and failure analysis
 
 1. Install Ubuntu in WSL from an admin PowerShell window: `wsl --install -d Ubuntu-24.04`
 2. Do **not** install an NVIDIA driver inside WSL. The Windows driver provides CUDA to WSL.
-3. In Ubuntu:
+3. In Ubuntu (`python3.12-dev` is needed because vLLM compiles GPU kernels at startup;
+   vLLM 0.32 also needs Windows NVIDIA driver 580 or newer):
    ```bash
-   sudo apt update && sudo apt install -y git build-essential curl
+   sudo apt update && sudo apt install -y git build-essential curl python3.12-dev
    curl -LsSf https://astral.sh/uv/install.sh | sh   # then open a new shell
    cd ~/llm-serving
    uv venv --python 3.12 && source .venv/bin/activate

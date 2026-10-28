@@ -35,12 +35,12 @@ def parse_sse_line(line: str) -> dict | None:
 
     Return None for blank lines and for the final 'data: [DONE]' marker.
     """
-    # TODO(you): lines look like 'data: {...json...}'.
-    #   1. Skip empty lines.
-    #   2. Strip the 'data: ' prefix.
-    #   3. Return None for '[DONE]'.
-    #   4. json.loads the rest.
-    raise NotImplementedError
+    if line == '':
+        return None
+    data = line.removeprefix("data: ")
+    if data == '[DONE]':
+        return None
+    return json.loads(data)
 
 
 def run_once(client: httpx.Client, url: str, payload: dict) -> dict:
@@ -56,26 +56,33 @@ def run_once(client: httpx.Client, url: str, payload: dict) -> dict:
             event = parse_sse_line(line)
             if event is None:
                 continue
-            # TODO(you): handle one event.
-            #   - If event.get("usage") is set, save it in `usage`
-            #     (it arrives in the last chunk, which has no choices).
-            #   - For each choice in event["choices"], read choice["delta"].get("content").
-            #   - When there is content: set t_first if this is the first one,
-            #     count the chunk, and append the text.
-            raise NotImplementedError
+            # The usage chunk comes last and has no choices.
+            if event.get("usage"):
+                usage = event["usage"]
+
+            for choice in event["choices"]:
+                content = choice["delta"].get("content")
+                # Skip the empty first chunk (role only) and any None deltas.
+                if content:
+                    if t_first is None:
+                        t_first = time.perf_counter()
+                    n_content_chunks += 1
+                    text_parts.append(content)
 
     t_end = time.perf_counter()
 
-    # TODO(you): compute and return these metrics.
-    #   ttft_ms        send -> first content chunk
-    #   e2e_ms         send -> last byte
-    #   prompt_tokens  usage["prompt_tokens"]  (note: larger than your prompt, why?)
-    #   output_tokens  usage["completion_tokens"]
-    #   tpot_ms        time per output token after the first:
-    #                  (t_end - t_first) / (output_tokens - 1), in ms
-    #   decode_tok_s   1000 / tpot_ms
-    #   n_chunks       n_content_chunks (compare it with output_tokens)
-    raise NotImplementedError
+    # TPOT excludes the first token, whose time is TTFT.
+    output_tokens = usage["completion_tokens"]
+    tpot_ms = (t_end - t_first) * 1000 / (output_tokens - 1)
+    return {
+        "ttft_ms": (t_first - t_start) * 1000,
+        "e2e_ms": (t_end - t_start) * 1000,
+        "prompt_tokens": usage["prompt_tokens"],
+        "output_tokens": output_tokens,
+        "tpot_ms": tpot_ms,
+        "decode_tok_s": 1000 / tpot_ms,
+        "n_chunks": n_content_chunks
+    }
 
 
 def main() -> None:
